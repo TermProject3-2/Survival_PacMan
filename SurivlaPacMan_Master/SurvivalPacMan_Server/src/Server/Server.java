@@ -326,7 +326,14 @@ public class Server extends JFrame {
 						data = st.nextToken();
 						InMessage("MESSAGE" + "&" + Nickname + " : " + data);
 						break;
-
+						
+					case "END":
+						dos.close();
+						dis.close();
+						user_socket.close();
+						vc.removeElement(this); // 
+						break;
+						
 					default:
 						textArea.append(msg + "\n");
 						InMessage(msg);

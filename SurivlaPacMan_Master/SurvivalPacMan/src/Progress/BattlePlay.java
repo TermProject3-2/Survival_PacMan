@@ -61,6 +61,7 @@ public class BattlePlay extends JPanel implements Runnable {
 	private JPanel waitpanel, playpanel;
 	private boolean isHost;
 	private Thread battleThread;
+	private Thread th;
 
 	private String GameResult;
 
@@ -165,22 +166,18 @@ public class BattlePlay extends JPanel implements Runnable {
 				String bulletInfo = "PLAY&" + id + "&Bullet&" + bullet.getX() + "," + bullet.getY() + ","
 						+ bullet.getDirx() + "," + bullet.getDiry() + "&" + bullet.isBulletExist();
 				send_Message(bulletInfo);
-				
+
 				if (objectManager.isGameOverInBattle()) {
-					
+
 					String GameOverMsg = "GAMEOVER&" + id;
 					send_Message(GameOverMsg);
 					System.out.println(GameOverMsg);
-					repaint();
-					return;
 				}
 
-				
 				playGameGraphic = getGraphics();
-				
-				if(playGameGraphic != null)
-				     paint(playGameGraphic);
 
+				if (playGameGraphic != null)
+					paint(playGameGraphic);
 
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -203,7 +200,7 @@ public class BattlePlay extends JPanel implements Runnable {
 
 				if (objectManager.getPacList().size() >= 2) {
 					g.drawString("enemy Life :      ", 300, 450); // �ܻ� ������
-				    g.drawString("enemy Life : " + objectManager.getPac(1).getLife(), 300, 450);
+					g.drawString("enemy Life : " + objectManager.getPac(1).getLife(), 300, 450);
 				}
 				Thread.sleep(2000);
 				g.drawImage(charImages.Lose, 0, 0, this);
@@ -214,13 +211,17 @@ public class BattlePlay extends JPanel implements Runnable {
 				contentPane.add(panel);
 				contentPane.remove(this);
 				contentPane.repaint();
+				send_Message("END&end&end");
+
+				th.stop();
+				battleThread.stop();
 				return;
 
 			} catch (InterruptedException e) {
 
 				e.printStackTrace();
 			}
-		} else if (GameResult.equals("win")) {  // 자신이 이겼을때
+		} else if (GameResult.equals("win")) { // 자신이 이겼을때
 			try {
 				g.setColor(Color.YELLOW);
 				g.drawString("Life :      ", 20, 450);
@@ -234,6 +235,10 @@ public class BattlePlay extends JPanel implements Runnable {
 				contentPane.add(panel);
 				contentPane.remove(this);
 				contentPane.repaint();
+				
+				th.stop();
+				battleThread.stop();
+
 				return;
 
 			} catch (InterruptedException e) {
@@ -273,7 +278,7 @@ public class BattlePlay extends JPanel implements Runnable {
 
 		}
 		send_Message("CONNECT" + "&" + id); // 정상적으로 연결되면 나의 id를 전송
-		Thread th = new Thread(new Runnable() { // 스레드를 돌려서 서버로부터 메세지를 수신
+		th = new Thread(new Runnable() { // 스레드를 돌려서 서버로부터 메세지를 수신
 			@SuppressWarnings("null")
 			@Override
 			public void run() {
@@ -330,10 +335,20 @@ public class BattlePlay extends JPanel implements Runnable {
 							parentPane.repaint();
 							versusPlayStart();
 							break;
-							
-						case "GAMEOVER": // 자신이 이겼을때 
+
+						case "GAMEOVER": // 자신이 이겼을때
 							System.out.println(" 게임 오버 메세지를 받았다@@@@@!!!!!!! ");
-							GameResult = "win";
+							String enemyId = st.nextToken();
+							if (!id.equals(enemyId)) {
+								GameResult = "win";
+								break;
+							}
+						case "END":
+							os.close();
+							is.close();
+							dos.close();
+							dis.close();
+							socket.close();
 							break;
 
 						case "PLAY":
@@ -385,7 +400,6 @@ public class BattlePlay extends JPanel implements Runnable {
 									break;
 								}
 							}
-
 
 						}
 
