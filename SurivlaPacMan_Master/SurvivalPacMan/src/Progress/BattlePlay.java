@@ -211,8 +211,9 @@ public class BattlePlay extends JPanel implements Runnable {
 				contentPane.add(panel);
 				contentPane.remove(this);
 				contentPane.repaint();
+				System.out.println("END&end&end@@@@@@@@@@@@");
 				send_Message("END&end&end");
-
+				battleThread.stop();
 				return;
 
 			} catch (InterruptedException e) {
@@ -234,6 +235,9 @@ public class BattlePlay extends JPanel implements Runnable {
 				contentPane.remove(this);
 				contentPane.repaint();
 				
+				System.out.println("END&end&end@@@@@@@@@@@@");
+				send_Message("END&end&end");
+				battleThread.stop();
 				return;
 
 			} catch (InterruptedException e) {
@@ -339,13 +343,14 @@ public class BattlePlay extends JPanel implements Runnable {
 								break;
 							}
 						case "END":
+							System.out.println("test@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 							os.close();
 							is.close();
 							dos.close();
 							dis.close();
 							socket.close();
-							battleThread.stop();
 							th.stop();
+							
 							break;
 
 						case "PLAY":

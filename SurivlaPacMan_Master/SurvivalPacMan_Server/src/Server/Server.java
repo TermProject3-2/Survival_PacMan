@@ -223,23 +223,20 @@ public class Server extends JFrame {
 					/*
 					 * StringTokenizer st = new StringTokenizer(inputData, "&");
 					 * 
-					 * switch (st.nextToken()) { case "CONNECT": Nickname =
-					 * st.nextToken(); textArea.append("ID " + Nickname +
-					 * " 접속\n");
-					 * textArea.setCaretPosition(textArea.getText().length());
-					 * int count = user_vc.size(); //// //
-					 * send_Message("CONNECT" + "&" + Nickname + "&" +
-					 * count);//이건 생성자에서 일어나고 생성자 지난 // 후에 벡터에 넣어줘서
-					 * InMessage("CONNECT" + "&" + Nickname + "&" + count);
+					 * switch (st.nextToken()) { case "CONNECT": Nickname = st.nextToken();
+					 * textArea.append("ID " + Nickname + " 접속\n");
+					 * textArea.setCaretPosition(textArea.getText().length()); int count =
+					 * user_vc.size(); //// // send_Message("CONNECT" + "&" + Nickname + "&" +
+					 * count);//이건 생성자에서 일어나고 생성자 지난 // 후에 벡터에 넣어줘서 InMessage("CONNECT" + "&" +
+					 * Nickname + "&" + count);
 					 * 
 					 * break; }
 					 */
 
-					
-					 /* textArea.append("ID " + Nickname + " 접속\n");
-					 * textArea.setCaretPosition(textArea.getText().length());
-					 * send_Message(Nickname + "님 환영합니다."); // 연결된 사용자에게 정상접속을
-					 * 알림
+					/*
+					 * textArea.append("ID " + Nickname + " 접속\n");
+					 * textArea.setCaretPosition(textArea.getText().length()); send_Message(Nickname
+					 * + "님 환영합니다."); // 연결된 사용자에게 정상접속을 알림
 					 */
 				}
 			} catch (Exception e) {
@@ -280,9 +277,9 @@ public class Server extends JFrame {
 			try {
 				// dos.writeUTF(str);
 				byte[] bb;
-				String s = String.format("%-64s",str);
+				String s = String.format("%-64s", str);
 				bb = s.getBytes("euc-kr");
-				dos.write(bb,0,64); // .writeUTF(str);
+				dos.write(bb, 0, 64); // .writeUTF(str);
 			} catch (IOException e) {
 				textArea.append("메시지 송신 에러 발생\n");
 				textArea.setCaretPosition(textArea.getText().length());
@@ -304,66 +301,73 @@ public class Server extends JFrame {
 
 					// System.out.println("Server"+msg);
 					StringTokenizer st = new StringTokenizer(msg, "&");
-					String tmp = st.nextToken();
-					switch (tmp) {
-					case "CONNECT":
-						Nickname = st.nextToken();
-						textArea.append("ID " + Nickname + " 접속\n");
-						textArea.setCaretPosition(textArea.getText().length());
-						InMessage("CONNECT" + "&" + Nickname + "&" + user_vc.size());
-						if(user_vc.size()==2){
-							try {
-								Thread.sleep(2000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-							InMessage("START" + "&" + Nickname + "&" +user_vc.size());
-						}
-
-						break;
-					case "MESSAGE":
-						Nickname = st.nextToken();
-						data = st.nextToken();
-						InMessage("MESSAGE" + "&" + Nickname + " : " + data);
-						break;
-						
-					case "END":
-						dos.close();
-						dis.close();
-						user_socket.close();
-						vc.removeElement(this); // 
-						break;
-						
-					default:
-						textArea.append(msg + "\n");
-						InMessage(msg);
-						break;
-
+					System.out.println(msg);
 					
-					  // System.out.println("Server"+msg); StringTokenizer st =
-//					  new StringTokenizer(msg, "&");
-//					  String tmps = st.nextToken();
-//					  switch (tmps) { case "CONNECT": Nickname = st.nextToken();
-//					  textArea.append("ID " + Nickname +  " 접속\n");
-//					  textArea.setCaretPosition(textArea.getText().length());
-//					  InMessage("CONNECT" + "&" + Nickname + "&" +  user_vc.size()); 
-//					  if (user_vc.size() == 2) { 
-//						  //// sleep(5); 
-//					  }
-//					  
-//					  break; 
-//					  case "MESSAGE": Nickname = st.nextToken(); data =
-//					  st.nextToken(); InMessage("MESSAGE" + "&" + Nickname +
-//					  " : " + data); break;
-//					  
-//					  default: textArea.append(msg + "\n"); InMessage(msg);
-//					  break;
-					 
+					if( st.hasMoreTokens()) {
+					String tmp = st.nextToken();
+						switch (tmp) {
+						case "CONNECT":
+							Nickname = st.nextToken();
+							textArea.append("ID " + Nickname + " 접속\n");
+							textArea.setCaretPosition(textArea.getText().length());
+							InMessage("CONNECT" + "&" + Nickname + "&" + user_vc.size());
+							if (user_vc.size() == 2) {
+								try {
+									Thread.sleep(2000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+								InMessage("START" + "&" + Nickname + "&" + user_vc.size());
+							}
+
+							break;
+						case "MESSAGE":
+							Nickname = st.nextToken();
+							data = st.nextToken();
+							InMessage("MESSAGE" + "&" + Nickname + " : " + data);
+							break;
+
+						case "END":
+							InMessage(msg);
+							for (int i = 0; i < user_vc.size(); i++) {
+								UserInfo imsi = (UserInfo) user_vc.elementAt(i);
+								imsi.dis.close();
+								imsi.dos.close();
+								imsi.user_socket.close();
+							}
+							vc.clear();
+							break;
+
+						default:
+							textArea.append(msg + "\n");
+							InMessage(msg);
+							break;
+
+						// System.out.println("Server"+msg); StringTokenizer st =
+						// new StringTokenizer(msg, "&");
+						// String tmps = st.nextToken();
+						// switch (tmps) { case "CONNECT": Nickname = st.nextToken();
+						// textArea.append("ID " + Nickname + " 접속\n");
+						// textArea.setCaretPosition(textArea.getText().length());
+						// InMessage("CONNECT" + "&" + Nickname + "&" + user_vc.size());
+						// if (user_vc.size() == 2) {
+						// //// sleep(5);
+						// }
+						//
+						// break;
+						// case "MESSAGE": Nickname = st.nextToken(); data =
+						// st.nextToken(); InMessage("MESSAGE" + "&" + Nickname +
+						// " : " + data); break;
+						//
+						// default: textArea.append(msg + "\n"); InMessage(msg);
+						// break;
+
+						}
 					}
+					
 
 					/*
-					 * msg = msg.trim(); // String msg = dis.readUTF();
-					 * InMessage(msg);
+					 * msg = msg.trim(); // String msg = dis.readUTF(); InMessage(msg);
 					 */
 
 				} catch (IOException e) {
