@@ -27,6 +27,7 @@ import Init.MapData;
 import Manager.ObjectManager;
 import Model.Ghost;
 
+
 public class Server extends JFrame {
 	private JPanel contentPane;
 	private JTextField textField; // 사용할 PORT번호 입력
@@ -40,6 +41,8 @@ public class Server extends JFrame {
 	private Socket soc; // 연결소켓
 	private int Port; // 포트번호
 	private Vector<UserInfo> vc = new Vector(); // 연결된 사용자를 저장할 벡터
+	
+	
 
 	public static void main(String[] args) {
 		Server frame = new Server();
@@ -220,24 +223,6 @@ public class Server extends JFrame {
 						InMessage("START" + "&" + Nickname);
 					}
 
-					/*
-					 * StringTokenizer st = new StringTokenizer(inputData, "&");
-					 * 
-					 * switch (st.nextToken()) { case "CONNECT": Nickname = st.nextToken();
-					 * textArea.append("ID " + Nickname + " 접속\n");
-					 * textArea.setCaretPosition(textArea.getText().length()); int count =
-					 * user_vc.size(); //// // send_Message("CONNECT" + "&" + Nickname + "&" +
-					 * count);//이건 생성자에서 일어나고 생성자 지난 // 후에 벡터에 넣어줘서 InMessage("CONNECT" + "&" +
-					 * Nickname + "&" + count);
-					 * 
-					 * break; }
-					 */
-
-					/*
-					 * textArea.append("ID " + Nickname + " 접속\n");
-					 * textArea.setCaretPosition(textArea.getText().length()); send_Message(Nickname
-					 * + "님 환영합니다."); // 연결된 사용자에게 정상접속을 알림
-					 */
 				}
 			} catch (Exception e) {
 				textArea.append("스트림 셋팅 에러\n");
@@ -337,38 +322,16 @@ public class Server extends JFrame {
 							}
 							vc.clear();
 							break;
+							
 
 						default:
 							textArea.append(msg + "\n");
 							InMessage(msg);
 							break;
 
-						// System.out.println("Server"+msg); StringTokenizer st =
-						// new StringTokenizer(msg, "&");
-						// String tmps = st.nextToken();
-						// switch (tmps) { case "CONNECT": Nickname = st.nextToken();
-						// textArea.append("ID " + Nickname + " 접속\n");
-						// textArea.setCaretPosition(textArea.getText().length());
-						// InMessage("CONNECT" + "&" + Nickname + "&" + user_vc.size());
-						// if (user_vc.size() == 2) {
-						// //// sleep(5);
-						// }
-						//
-						// break;
-						// case "MESSAGE": Nickname = st.nextToken(); data =
-						// st.nextToken(); InMessage("MESSAGE" + "&" + Nickname +
-						// " : " + data); break;
-						//
-						// default: textArea.append(msg + "\n"); InMessage(msg);
-						// break;
-
 						}
 					}
 					
-
-					/*
-					 * msg = msg.trim(); // String msg = dis.readUTF(); InMessage(msg);
-					 */
 
 				} catch (IOException e) {
 

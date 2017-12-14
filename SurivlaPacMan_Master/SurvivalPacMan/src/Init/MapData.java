@@ -1,6 +1,9 @@
 package Init;
 
 import java.awt.Color;
+import java.util.ArrayList;
+
+import Model.PacMan;
 
 public class MapData {
 	int blocksize = 24;
@@ -46,6 +49,8 @@ public class MapData {
 		currentMap = new short[level1data.length];
 		level = 1;
 	}
+	
+	
 
 	public short[] returnMap() {
 		switch (level) {

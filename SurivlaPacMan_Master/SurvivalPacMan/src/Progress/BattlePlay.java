@@ -135,9 +135,9 @@ public class BattlePlay extends JPanel implements Runnable {
 	public void versusPlayStart() {
 
 		battleThread.start();
-		// this.start();
 	}
 
+	
 	@Override // �߰���(��)
 	public void run() {
 
@@ -166,6 +166,7 @@ public class BattlePlay extends JPanel implements Runnable {
 				String bulletInfo = "PLAY&" + id + "&Bullet&" + bullet.getX() + "," + bullet.getY() + ","
 						+ bullet.getDirx() + "," + bullet.getDiry() + "&" + bullet.isBulletExist();
 				send_Message(bulletInfo);
+		
 
 				if (objectManager.isGameOverInBattle()) {
 
@@ -234,7 +235,7 @@ public class BattlePlay extends JPanel implements Runnable {
 				contentPane.add(panel);
 				contentPane.remove(this);
 				contentPane.repaint();
-				
+
 				System.out.println("END&end&end@@@@@@@@@@@@");
 				send_Message("END&end&end");
 				battleThread.stop();
@@ -350,7 +351,6 @@ public class BattlePlay extends JPanel implements Runnable {
 							dis.close();
 							socket.close();
 							th.stop();
-							
 							break;
 
 						case "PLAY":
@@ -358,12 +358,12 @@ public class BattlePlay extends JPanel implements Runnable {
 							if (!id.equals(idCheck)) {
 								String object = st.nextToken();
 								switch (object) {
-								// !!!!!!!!!!!!!! 처음 각 팩맨의 위치는 서버가 지정해줘야한다!!!!!!!
+
 								case "PacMan": // 받을 프로토콜 객체이름&x,y,viewX,viewy&status status&life는 숫자를
 									String pacxy = st.nextToken();
 									StringTokenizer pactokenizer = new StringTokenizer(pacxy, ",");
 									String pacxytoken = pactokenizer.nextToken();
-									objectManager.getPac(1).setX(Integer.parseInt(pacxytoken)); // 상대는 무조건 인덱스 1로 가정
+									objectManager.getPac(1).setX(Integer.parseInt(pacxytoken));
 									pacxytoken = pactokenizer.nextToken();
 									objectManager.getPac(1).setY(Integer.parseInt(pacxytoken));
 									pacxytoken = pactokenizer.nextToken();
