@@ -17,7 +17,7 @@ public class DrawPacMan extends JFrame {
 
 	public DrawPacMan(ObjectManager objectManager, CharImages charImages) {
 		this.objectManager = objectManager;
-		// this.pac = objectManager.getPac(0); // �ӽ÷� �ϵ��ڵ� @@@@@@@@@@@@@@@@@@@@@@@
+		// this.pac = objectManager.getPac(0); 
 		this.charImages = charImages;
 		AnimationCount = 0;
 
@@ -31,6 +31,14 @@ public class DrawPacMan extends JFrame {
 			AnimationCount++;
 			if (pac.getStatus() == 0)
 				g.drawImage(charImages.pacDeath, pac.getX() + 13, pac.getY() + 31, this);
+
+			else if (i == 0 && pac.getStatus() == 2) {
+				g.drawImage(charImages.pacPower, pac.getX() + 13, pac.getY() + 31, this);
+			}
+
+			else if (i == 1 && pac.getStatus() == 2) {
+				g.drawImage(charImages.enemyPower, pac.getX() + 13, pac.getY() + 31, this);
+			}
 
 			else {
 				if (pac.getViewdx() == -1)

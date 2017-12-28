@@ -15,7 +15,7 @@ public class MyKey extends KeyAdapter { ///////////////// �۵� �ȉ�
 		this.bullet = bullet;
 	}
 
-
+	// �����ڸ� �� ���� �κ�ȭ�鿡���� Ű �����ʿ� ������������ Ű������ ����??
 
 	public void keyPressed(KeyEvent e) {
 		if (e.getKeyCode() == 32) {

@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.StringTokenizer;
+import java.util.Timer;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -24,8 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import Init.MapData;
-import Manager.ObjectManager;
-import Model.Ghost;
+import TimeTask.Regen;
 
 
 public class Server extends JFrame {
@@ -34,15 +34,13 @@ public class Server extends JFrame {
 	private JButton Start; // 서버를 실행시킨 버튼
 	JTextArea textArea; // 클라이언트 및 서버 메시지 출력
 
-	private ObjectManager objectManager;
 	private MapData mapData;
 
 	private ServerSocket socket; // 서버소켓
 	private Socket soc; // 연결소켓
 	private int Port; // 포트번호
 	private Vector<UserInfo> vc = new Vector(); // 연결된 사용자를 저장할 벡터
-	
-	
+	private Server server;
 
 	public static void main(String[] args) {
 		Server frame = new Server();
@@ -50,6 +48,7 @@ public class Server extends JFrame {
 	}
 
 	public Server() {
+		this.server = this;
 		init();
 	}
 
@@ -63,7 +62,6 @@ public class Server extends JFrame {
 
 		JScrollPane js = new JScrollPane();
 		mapData = new MapData();
-		objectManager = new ObjectManager(2, 6, mapData);
 		textArea = new JTextArea();
 		textArea.setColumns(20);
 		textArea.setRows(5);
@@ -147,7 +145,7 @@ public class Server extends JFrame {
 						textArea.append("사용자 접속 대기중...\n");
 						soc = socket.accept(); // accept가 일어나기 전까지는 무한 대기중
 						textArea.append("사용자 접속!!\n");
-						UserInfo user = new UserInfo(soc, vc, objectManager); // 연결된
+						UserInfo user = new UserInfo(soc, vc); // 연결된
 																				// 소켓
 																				// 객체
 																				// 생성
@@ -165,26 +163,24 @@ public class Server extends JFrame {
 			}
 		});
 		th.start();
+	
 	}
 
-	class UserInfo extends Thread {
+	public class UserInfo extends Thread {
 		private InputStream is;
 		private OutputStream os;
 		private DataInputStream dis;
 		private DataOutputStream dos;
 		private Socket user_socket;
 		private Vector user_vc;
-		private ObjectManager objectManager;
 		private String Nickname = "";
 		private StringBuilder stringBuilder;
 
-		public UserInfo(Socket soc, Vector vc, ObjectManager objectManager) // 생성자메소드
+		public UserInfo(Socket soc, Vector vc) // 생성자메소드
 		{
 			// 매개변수로 넘어온 자료 저장
 			this.user_socket = soc;
-
 			this.user_vc = vc;
-			this.objectManager = objectManager;
 			// User_network();
 		}
 
@@ -201,7 +197,7 @@ public class Server extends JFrame {
 				dis.read(b);
 				String inputData = new String(b);
 				inputData = inputData.trim();
-
+				
 				StringTokenizer st = new StringTokenizer(inputData, "&");
 
 				switch (st.nextToken()) {
@@ -211,18 +207,7 @@ public class Server extends JFrame {
 					textArea.setCaretPosition(textArea.getText().length());
 					int count = user_vc.size(); ////
 					InMessage("CONNECT" + "&" + Nickname + "&" + count);
-					if (user_vc.size() == 2) {
-						System.out.println("here is first");
-						try {
-							Thread.sleep(2000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						System.out.println("here is second");
-
-						InMessage("START" + "&" + Nickname);
-					}
-
+					
 				}
 			} catch (Exception e) {
 				textArea.append("스트림 셋팅 에러\n");
@@ -231,27 +216,12 @@ public class Server extends JFrame {
 		}
 
 		public void InMessage(String str) {
-			// textArea.append("사용자로부터 들어온 메세지 : " + str+"\n");
-
-			/*
-			 * textArea.append(str + "\n");
-			 * textArea.setCaretPosition(textArea.getText().length());
-			 */ // 디버깅용
-
-			process(objectManager);
-			// 사용자 메세지 처리
 			broad_cast(str);
-		}
-
-		public void process(ObjectManager objectManager) {
-			this.objectManager = this.objectManager;
-
 		}
 
 		public void broad_cast(String str) {
 			for (int i = 0; i < user_vc.size(); i++) {
 				UserInfo imsi = (UserInfo) user_vc.elementAt(i);
-
 				textArea.append(str + "\nvector size = " + user_vc.size() + "\n");
 				imsi.send_Message(str);
 
@@ -262,9 +232,9 @@ public class Server extends JFrame {
 			try {
 				// dos.writeUTF(str);
 				byte[] bb;
-				String s = String.format("%-64s", str);
+				String s = String.format("%-64s",str);
 				bb = s.getBytes("euc-kr");
-				dos.write(bb, 0, 64); // .writeUTF(str);
+				dos.write(bb,0,64); // .writeUTF(str);
 			} catch (IOException e) {
 				textArea.append("메시지 송신 에러 발생\n");
 				textArea.setCaretPosition(textArea.getText().length());
@@ -273,46 +243,66 @@ public class Server extends JFrame {
 
 		public void run() // 스레드 정의
 		{
-
+			int playerNum=0;
+			
+			 Timer scheduler = new Timer();
+             Regen regen = new Regen(server); 
+             scheduler.scheduleAtFixedRate(regen, 20000,20000); 
+			
 			while (true) {
 				try {
 
 					// 사용자에게 받는 메세지
+					
 					byte[] b = new byte[128];
 					dis.read(b, 0, 64);
 					String msg = new String(b, "euc-kr"); // + "\n";
 					msg = msg.trim();
 					String data;
 
-					// System.out.println("Server"+msg);
 					StringTokenizer st = new StringTokenizer(msg, "&");
-					System.out.println(msg);
 					
-					if( st.hasMoreTokens()) {
-					String tmp = st.nextToken();
+					if(st.hasMoreTokens()){
+						String tmp = st.nextToken();
 						switch (tmp) {
 						case "CONNECT":
 							Nickname = st.nextToken();
 							textArea.append("ID " + Nickname + " 접속\n");
 							textArea.setCaretPosition(textArea.getText().length());
 							InMessage("CONNECT" + "&" + Nickname + "&" + user_vc.size());
-							if (user_vc.size() == 2) {
-								try {
-									Thread.sleep(2000);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-								InMessage("START" + "&" + Nickname + "&" + user_vc.size());
-							}
-
+							
 							break;
 						case "MESSAGE":
 							Nickname = st.nextToken();
 							data = st.nextToken();
 							InMessage("MESSAGE" + "&" + Nickname + " : " + data);
 							break;
-
+						case "READY":
+							Nickname = st.nextToken();
+							String onOff = st.nextToken();
+							playerNum = Integer.parseInt(st.nextToken());
+							if(onOff.equals("unready") && playerNum >=1){
+								System.out.println(Nickname + " unready playnum = " +playerNum);
+								playerNum--;
+								InMessage("READY&"+Nickname+"&unready&"+playerNum);						
+							}
+							else if(onOff.equals("ready")){
+								System.out.println(Nickname + " ready playnum = " +playerNum);
+								playerNum++;
+								InMessage("READY&"+Nickname+"&ready&" + playerNum);		
+							}
+							System.out.println(Nickname +" playernum = "+ playerNum);
+							if(playerNum==2){
+								try {
+									Thread.sleep(2000);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+								InMessage("START" + "&" + Nickname + "&" +user_vc.size());
+							}
+							break;
 						case "END":
+							scheduler.cancel();
 							InMessage(msg);
 							for (int i = 0; i < user_vc.size(); i++) {
 								UserInfo imsi = (UserInfo) user_vc.elementAt(i);
@@ -322,20 +312,17 @@ public class Server extends JFrame {
 							}
 							vc.clear();
 							break;
-							
-
 						default:
 							textArea.append(msg + "\n");
 							InMessage(msg);
 							break;
-
 						}
 					}
-					
 
 				} catch (IOException e) {
 
 					try {
+						scheduler.cancel();
 						dos.close();
 						dis.close();
 						user_socket.close();
@@ -356,5 +343,13 @@ public class Server extends JFrame {
 		}// run메소드 끝
 
 	} // 내부 userinfo클래스끝
+
+	public Vector<UserInfo> getVc() {
+		return vc;
+	}
+
+	public void setVc(Vector<UserInfo> vc) {
+		this.vc = vc;
+	}
 
 }

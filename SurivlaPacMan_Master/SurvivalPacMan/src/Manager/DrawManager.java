@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -16,8 +15,8 @@ import Model.Ghost;
 import Model.PacMan;
 
 public class DrawManager {
-	// 11 19 ����ö ���� �����带 ���� ������ ���߹��۸��� �ϸ� �������� �ſ� ����
 
+	PacMan pac;
 	CharImages charImages;
 	Graphics mgc;
 	DrawPacMan drawPacMan;
@@ -36,27 +35,27 @@ public class DrawManager {
 
 		drawMaze = new DrawMaze(mapData, charImages);
 		drawPacMan = new DrawPacMan(objectManager, charImages);
-		drawGhost = new DrawGhost(objectManager, charImages); // �Ѹ� ��ü�� �ʿ��ϱ� ������ ObjectManager ä�� ����
+		drawGhost = new DrawGhost(objectManager, charImages);
 		drawBullet = new DrawBullet(objectManager);
 	}
 
-	public void paint(Graphics g) { // run���� ȣ�����
+	public void paint(Graphics g) {
 
 		drawMaze.paint(g);
 		drawPacMan.paint(g);
 		drawGhost.paint(g);
 		drawBullet.paint(g);
 
-		// �� Font�� �׸���� �ַθ�� ȭ�� �ε��� �������� ��..
-		// g.setFont(new Font("Helvetica", Font.BOLD, 14));
 		g.setColor(Color.YELLOW);
 		g.drawString("my Life :      ", 20, 450); // �ܻ� ������
 		g.drawString("my Life : " + objectManager.getPac(0).getLife(), 20, 450);
 
 		if (objectManager.getPacList().size() >= 2) {
 			g.drawString("enemy Life :      ", 300, 450); // �ܻ� ������
-		    g.drawString("enemy Life : " + objectManager.getPac(1).getLife(), 300, 450);
+			g.drawString("enemy Life : " + objectManager.getPac(1).getLife(), 300, 450);
 		}
+		g.drawString("Bullet :      ", 140, 450);
+		g.drawString("Bullet : " + objectManager.getPac(0).getBullet().getBulletNum(), 140, 450);
 
 	}
 

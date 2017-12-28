@@ -12,8 +12,6 @@ import Model.PacMan;
 
 public class ObjectManager {
 
-	// 占쏙옙占쏙옙占쏙옙 占쏙옙占쏙옙占쏙옙 占쏙옙占썩에占쏙옙 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-
 	private ArrayList<PacMan> pacList;
 	private ArrayList<Ghost> ghoList;
 	private int pacNum;
@@ -39,41 +37,66 @@ public class ObjectManager {
 		ghostManager = new GhostManager(ghoList, mapData);
 	}
 
-	public void ObjectMove() { // 11 19 占쏙옙占쏙옙철 占쌩곤옙 Ojbetct 占싱듸옙占쏙옙 占쏙옙占쏙옙求占?占쌨소듸옙
+	public void ObjectMove() {
 		for (int i = 0; i < pacNum; i++) {
-			pacList.get(i).move(); // PacMan 클占쏙옙占쏙옙占쏙옙 move 占쏙옙占쏙옙
+			pacList.get(i).move();
 			pacList.get(i).getBullet().move();
 		}
 		ghostManager.move();
 
 	}
 
+	public void ObjectPacMove() {
+		for (int i = 0; i < pacNum; i++) {
+			pacList.get(i).move();
+			pacList.get(i).getBullet().move();
+		}
+	}
+
 	public void checkCollision() {
 
+		PacMan myPac = pacList.get(0);
+		
 		for (int j = 0; j < pacList.size(); j++) {
 
 			PacMan pac = pacList.get(j);
 
 			if (j == 1 && pac.getBullet().isBulletExist()) {
 
-				PacMan myPac = pacList.get(0);
+				
 
-				if (myPac.getStatus() != 0 && Math.abs(pac.getBullet().getX() - myPac.getX()) < 12
+				// 여기 수정 일반상태일때만 총알에 맞을경우 처리시 == 1로 !
+				if (myPac.getStatus() == 1 && Math.abs(pac.getBullet().getX() - myPac.getX()) < 12
 						&& Math.abs(pac.getBullet().getY() - myPac.getY()) < 12) {
 
-					myPac.setLife(myPac.getLife() - 1);
-					myPac.setStatus(0);
-
-					if (myPac.getLife() > 0) { // 占쏙옙占쏙옙占?1占쏙옙 占싱삼옙 占쏙옙占쏙옙占쏙옙占?4占쏙옙占쏙옙 占쏙옙활占싼댐옙.
-						Timer scheduler = new Timer();
-						PacResure pacResure = new PacResure(this, 0); // 살릴 Pac은 자신이기 때문에 인덱스 = 0
-						scheduler.schedule(pacResure, 4000);
-					}
 					pac.getBullet().setBulletExist(false);
 					pac.getBullet().setDirx(0);
 					pac.getBullet().setDiry(0);
-				}
+					myPac.setLife(myPac.getLife() - 1);
+					myPac.setStatus(0);
 
+					if (myPac.getLife() > 0) {
+						Timer scheduler = new Timer();
+						PacResure pacResure = new PacResure(this, 0); // 살릴 Pac은 자신이기 때문에 인덱스 = 0
+						scheduler.schedule(pacResure, 3000);
+					}
+
+				}
+				
+			}
+			
+			if(j == 1 && (myPac.getStatus() == 1 && pac.getStatus() == 2)) {
+				if (Math.abs(pac.getX() - myPac.getX()) < 12
+						&& Math.abs(pac.getY() - myPac.getY()) < 12) {
+					
+					myPac.setLife(myPac.getLife() - 1);
+					myPac.setStatus(0);
+					if (myPac.getLife() > 0) {
+						Timer scheduler = new Timer();
+						PacResure pacResure = new PacResure(this, 0); // 살릴 Pac은 자신이기 때문에 인덱스 = 0
+						scheduler.schedule(pacResure, 3000);
+					}
+				}
 			}
 
 			for (int i = 0; i < ghoList.size(); i++) {
@@ -86,33 +109,16 @@ public class ObjectManager {
 				// Check bullet with wall -> Bullet.move()
 				// Check bullet collision with ghost
 
-				if (pacList.size() == 1) {
-					if (pac.getBullet().isBulletExist()) {
-						if (Math.abs(pac.getBullet().getX() - ghost.getX()) < 12
-								&& Math.abs(pac.getBullet().getY() - ghost.getY()) < 12) {
-							ghost.setStatus(0);
-							pac.getBullet().setBulletExist(false);
-							pac.getBullet().setDirx(0);
-							pac.getBullet().setDiry(0);
-						}
-
-					}
-				}
-
 				if (Math.abs(pac.getX() - ghost.getX()) < 12 && Math.abs(pac.getY() - ghost.getY()) < 12) {
 
-					if (pac.getStatus() == 2) { // scared 占쏙옙占쏙옙灸占?
-						// d.score += 10;
-						ghost.setStatus(0);
-						// 占쏙옙트 占쏙옙占쏙옙占십울옙
-					} else if (pac.getStatus() == 1) { // 占쏙옙占쏙옙占?占쏙옙占쏙옙占쏙옙 占싼몌옙占쏙옙 占쏙옙트占쏙옙 占쏙옙占쏙옙占쏙옙占?
+					if (pac.getStatus() == 1) { //
 						System.out.println(" Death ");
 						pac.setLife(pac.getLife() - 1);
 						pac.setStatus(0);
-						if (pac.getLife() > 0) { // 占쏙옙占쏙옙占?1占쏙옙 占싱삼옙 占쏙옙占쏙옙占쏙옙占?4占쏙옙占쏙옙 占쏙옙활占싼댐옙.
+						if (pac.getLife() > 0) { //
 							Timer scheduler = new Timer();
 							PacResure pacResure = new PacResure(this, j);
-							scheduler.schedule(pacResure, 4000);
+							scheduler.schedule(pacResure, 3000);
 						}
 
 					}
